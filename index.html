@@ -2,56 +2,172 @@
 <html lang="mn">
 <head>
 <meta charset="UTF-8">
-<title>Компьютер засварын систем</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>Repair System Login</title>
+<style>
+body{margin:0;font-family:Arial;background:#121821;color:#fff}
+.sidebar{width:220px;position:fixed;height:100%;background:#1b2735;padding-top:20px}
+.sidebar a{display:none;color:#cfd8dc;padding:12px;text-decoration:none;cursor:pointer}
+.sidebar a:hover{background:#263238;color:#4fc3f7}
+.main{margin-left:240px;padding:20px}
+.section{display:none;background:#1e2a38;padding:20px;border-radius:10px;max-width:500px}
+input,select,textarea,button{
+  width:100%;padding:8px;margin:6px 0;border-radius:5px;border:none
+}
+button{background:#4fc3f7;font-weight:bold;cursor:pointer}
+</style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="logo">🛠 RepairPro</div>
-  <nav>
-    <a href="#">Нэвтрэх</a>
-    <a href="#">Тусламж</a>
-    <a href="#">Түгээмэл асуудлууд</a>
-    <a href="#">Заавар зөвлөгөө</a>
-  </nav>
-</header>
+<div class="sidebar">
+  <a onclick="openPage('request')" id="menuRequest">Засварын хүсэлт</a>
+  <a onclick="openPage('schedule')" id="menuSchedule">Цаг товлох</a>
+  <a onclick="openPage('pricing')" id="menuPricing">Үнийн санал</a>
+  <a onclick="openPage('guide')" id="menuGuide">Заавар</a>
+  <a onclick="openPage('guide')" id="menuGuide">Тусламж</a>
+  <a onclick="openPage('guide')" id="menuGuide">Түгээмэл АСУУЛТ</a>
+  <a onclick="logout()">Гарах</a>
+</div>
 
-<div class="main-container">
+<div class="main">
 
-  <div class="login-card">
-    <h2>Нэвтрэх</h2>
+<div id="login" class="section">
+  <h2>Нэвтрэх / Бүртгүүлэх</h2>
+  <input id="name" placeholder="Нэр">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Нууц үг">
 
-    <div class="input-group">
-      <i class="fa fa-user"></i>
-      <input type="text" placeholder="Хэрэглэгчийн нэр">
-    </div>
+  <select id="role">
+    <option value="user">Хувь хүн</option>
+    <option value="organization">Байгууллага</option>
+    <option value="admin">Админ</option>
+    <option value="employee">Ажилтан</option>
+  </select>
 
-    <div class="input-group">
-      <i class="fa fa-lock"></i>
-      <input type="password" placeholder="Нууц үг">
-    </div>
+  <button onclick="register()">Бүртгүүлэх</button>
+  <button onclick="login()">Нэвтрэх</button>
+  <button onclick="login()">Нууц үг мартсан</button>
+</div>
 
-    <button class="btn-login">Нэвтрэх</button>
+<div id="request" class="section">
+  <h2>Засварын хүсэлт</h2>
+  <input placeholder="Асуудлын нэр">
+</div>
 
-    <div class="links">
-      <a href="register.html">Шинээр бүртгүүлэх</a>
-      <a href="#">Нууц үг мартсан?</a>
-    </div>
-  </div>
+<div id="schedule" class="section">
+  <h2>Цаг товлох</h2>
+  <input type="date">
+  <input type="time">
+</div>
 
-  <div class="social-bar">
-    <a href="#"><i class="fab fa-facebook"></i></a>
-    <a href="#"><i class="fab fa-instagram"></i></a>
-  </div>
+<div id="pricing" class="section">
+  <h2>Үнийн санал</h2>
+  <p>Onsite: 50,000₮ | Remote: 20,000₮</p>
+</div>
+
+<div id="guide" class="section">
+  <h2>Заавар</h2>
+  <ul>
+    <li>Компьютерээ унтраа</li>
+    <li>Цахилгаанаас салга</li>
+    <li>Инженерт ханд</li>
+  </ul>
+</div>
 
 </div>
 
-<footer>
-  <p>📞 9999-9999 | ✉ info@repair.mn | 📍 Улаанбаатар</p>
-  <p>© Copyright 2026</p>
-</footer>
+<script>
+function openPage(page){
+  document.querySelectorAll(".section").forEach(s=>s.style.display="none");
+  document.getElementById(page).style.display="block";
+}
+
+/* Register */
+function register(){
+  const user={
+    name:name.value,
+    email:email.value,
+    password:password.value,
+    role:role.value
+  };
+  let users=JSON.parse(localStorage.getItem("users"))||[];
+  users.push(user);
+  localStorage.setItem("users",JSON.stringify(users));
+  alert("Бүртгэл амжилттай");
+}
+
+/* Login */
+function login(){
+  let users=JSON.parse(localStorage.getItem("users"))||[];
+  let user=users.find(u=>u.email===email.value && u.password===password.value);
+  if(user){
+    localStorage.setItem("currentUser",JSON.stringify(user));
+    alert("Нэвтэрлээ: "+user.role);
+    applyRoleMenu(user.role);
+    openPage("request");
+  }else{
+    alert("Нэвтрэх мэдээлэл буруу");
+  }
+}
+
+/* Role Menu */
+function applyRoleMenu(role){
+  document.querySelectorAll(".sidebar a").forEach(a=>a.style.display="none");
+
+  if(role==="user"){            // Хувь хүн
+    menuRequest.style.display="block";
+    menuSchedule.style.display="block";
+    menuPricing.style.display="block";
+    menuGuide.style.display="block";
+  }
+
+  if(role==="organization"){    // Байгууллага
+    menuRequest.style.display="block";
+    menuPricing.style.display="block";
+    menuGuide.style.display="block";
+  }
+
+  if(role==="employee"){        // Ажилтан
+    menuRequest.style.display="block";
+    menuSchedule.style.display="block";
+  }
+
+  if(role==="admin"){           // Админ
+    document.querySelectorAll(".sidebar a").forEach(a=>a.style.display="block");
+  }
+}
+
+/* Logout */
+function logout(){
+  localStorage.removeItem("currentUser");
+  location.reload();
+}
+
+/* Start */
+openPage("login");
+</script>
 
 </body>
 </html>
+<!-- ====== ТҮГЭЭМЭЛ АСУУЛТ ====== -->
+<div id="faq" class="section">
+  <h2>Түгээмэл асуултууд</h2>
+  <ul>
+    <li>❓ Яаж бүртгүүлэх вэ?<br>➡ Нэвтрэх цэснээс Бүртгүүлэх дарна.</li>
+    <li>❓ Нууц үг мартвал яах вэ?<br>➡ Тусламж хэсэгт хандана.</li>
+    <li>❓ Үнийн санал яаж авах вэ?<br>➡ Үнийн санал цэс рүү орно.</li>
+  </ul>
+</div>
+
+<!-- ====== ЗААВАР, ЗӨВЛӨГӨӨ ====== -->
+<div id="guide" class="section">
+  <h2>Заавар, зөвлөгөө</h2>
+  <h3>Router update хийх заавар</h3>
+  <ol>
+    <li>Router-ийн IP хаягаар (ихэвчлэн 192.168.1.1) нэвтэрнэ.</li>
+    <li>Admin хэрэглэгчээр орно.</li>
+    <li>Firmware update хэсэг рүү орно.</li>
+    <li>Шинэ update файлыг сонгоно.</li>
+    <li>Update дарж хүлээнэ.</li>
+    <li>Router дахин асах хүртэл хүлээнэ.</li>
+  </ol>
+</div>
